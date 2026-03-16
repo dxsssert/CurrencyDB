@@ -12,49 +12,28 @@ public class QuoteRepository
     public async Task<IEnumerable<Quote>> GetAllQuotesAsync()
     {
         using var connection = _context.CreateConnection();
-        var query = @"SELECT 
-                    quote_id AS QuoteId, 
-                    quote_date::timestamp AS QuoteDate, 
-                    rate_buy AS RateBuy, 
-                    rate_sell AS RateSell, 
-                    created_at AS CreatedAt, 
-                    currency_id AS CurrencyId, 
-                    bank_id AS BankId 
-                  FROM quotes";
-        return await connection.QueryAsync<Quote>(query);
+        return await connection.QueryAsync<Quote>("SELECT * FROM get_all_quotes()");
     }
     // POST-запрос для добавления котировки в БД
     public async Task<Quote> CreateQuoteAsync(Quote quote)
     {
         using var connection = _context.CreateConnection();
-        var query = @"INSERT INTO quotes (quote_date, rate_buy, rate_sell, currency_id, bank_id) 
-              VALUES (@QuoteDate, @RateBuy, @RateSell, @CurrencyId, @BankId) 
-              RETURNING quote_id AS QuoteId, 
-                        quote_date::timestamp AS QuoteDate, 
-                        rate_buy AS RateBuy, 
-                        rate_sell AS RateSell, 
-                        created_at AS CreatedAt, 
-                        currency_id AS CurrencyId, 
-                        bank_id AS BankId";
-        return await connection.QuerySingleAsync<Quote>(query, quote);
+        var sql = "SELECT * FROM create_quote_func(@QuoteDate::date, @RateBuy, @RateSell, @CurrencyId, @BankId)";
+        return await connection.QuerySingleAsync<Quote>(sql, quote);
     }
     // UPDATE-запрос для изменения котировки в БД
-    public async Task UpdateQuoteAsync(Quote quote)
+    public async Task<Quote?> UpdateQuoteAsync(Quote quote)
     {
         using var connection = _context.CreateConnection();
-        var query = @"UPDATE quotes 
-                      SET rate_buy = @RateBuy, 
-                          rate_sell = @RateSell,
-                          quote_date = @QuoteDate
-                      WHERE quote_id = @QuoteId";
-        await connection.ExecuteAsync(query, quote);
+        var sql = "SELECT * FROM update_quote_func(@QuoteId, @QuoteDate::date, @RateBuy, @RateSell)";
+        return await connection.QuerySingleOrDefaultAsync<Quote>(sql, quote);
     }
     // DELETE-запрос для удаления котировки из БД
-    public async Task DeleteQuoteAsync(int id)
+    public async Task<int?> DeleteQuoteAsync(int id)
     {
         using var connection = _context.CreateConnection();
-        var query = "DELETE FROM quotes WHERE quote_id = @Id";
-        await connection.ExecuteAsync(query, new { Id = id });
+        var sql = "SELECT delete_quote_func(@Id)";
+        return await connection.QuerySingleOrDefaultAsync<int>(sql, new { Id = id });
     }
     
 }

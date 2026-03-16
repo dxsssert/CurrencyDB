@@ -14,37 +14,27 @@ public class BankRepository
     public async Task<IEnumerable<Bank>> GetAllBanksAsync()
     {
         using var connection = _context.CreateConnection();
-        var sql = "SELECT bank_id AS BankId, bank_name AS BankName, bank_code AS BankCode, bank_type AS BankType, is_active AS IsActive FROM banks";
-        return await connection.QueryAsync<Bank>(sql);
+        return await connection.QueryAsync<Bank>("SELECT * FROM get_all_banks()");
     }
     // POST-запрос для добавления нового банка 
     public async Task<Bank> CreateBankAsync(Bank bank)
     {
         using var connection = _context.CreateConnection();
-        var query = @"INSERT INTO banks (bank_name, bank_code, bank_type, is_active) 
-                  VALUES (@BankName, @BankCode, @BankType, @IsActive) 
-                  RETURNING bank_id AS BankId, bank_name AS BankName, 
-                            bank_code AS BankCode, bank_type AS BankType, 
-                            is_active AS IsActive";
-        return await connection.QuerySingleAsync<Bank>(query, bank);
+        var sql = "SELECT * FROM create_bank_proc(@BankName, @BankCode, @BankType, @IsActive)";
+        return await connection.QuerySingleAsync<Bank>(sql, bank);
     }
     // UPDATE-запрос для изменения информации о банке
-    public async Task UpdateBankAsync(Bank bank)
+    public async Task<Bank?> UpdateBankAsync(Bank bank)
     {
         using var connection = _context.CreateConnection();
-        var query = @"UPDATE banks 
-                  SET bank_name = @BankName, 
-                      bank_code = @BankCode, 
-                      bank_type = @BankType, 
-                      is_active = @IsActive 
-                  WHERE bank_id = @BankId";
-        await  connection.ExecuteAsync(query, bank);
+        var sql = "SELECT * FROM update_bank_func(@BankId, @BankName, @BankCode, @BankType, @IsActive)";
+        return await connection.QuerySingleOrDefaultAsync<Bank>(sql, bank);
     }
-    // DELETE-запрос для удаление банка
-    public async Task DeleteBankAsync(int bankId)
+    // DELETE-запрос для удаления банка
+    public async Task<int?> DeleteBankAsync(int bankId)
     {
         using var connection = _context.CreateConnection();
-        var query = @"DELETE FROM banks WHERE bank_id = @BankId";
-        await connection.ExecuteAsync(query, new {BankId = bankId});
+        var sql = "SELECT delete_bank_func(@BankId)";
+        return await connection.QuerySingleOrDefaultAsync<int>(sql, new { BankId = bankId });
     }
 }

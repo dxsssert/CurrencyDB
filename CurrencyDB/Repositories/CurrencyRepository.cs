@@ -13,37 +13,27 @@ public class CurrencyRepository
     public async Task<IEnumerable<Currency>> GetAllCurrencyAsync()
     {
         using var connection = _context.CreateConnection();
-        var query = "SELECT currency_id AS CurrencyId, currency_name AS CurrencyName, " +
-                    "is_crypto AS IsCrypto, created_at AS CreatedAt, digital_code AS DigitalCode, " +
-                    "alpha_code AS AlphaCode FROM currencies";
-        return await connection.QueryAsync<Currency>(query);
+        return await connection.QueryAsync<Currency>("SELECT * FROM get_all_currencies()");
     }
-    // POST-запрос для  создания новой  валюты
+    // POST-запрос для создания новой валюты
     public async Task<Currency> CreateCurrencyAsync(Currency currency)
     {
         using var connection = _context.CreateConnection();
-        var query = @"INSERT INTO currencies (currency_name, is_crypto, digital_code, alpha_code) 
-                  VALUES (@CurrencyName, @IsCrypto, @DigitalCode, @AlphaCode) 
-                  RETURNING *";
-        return await connection.QuerySingleAsync<Currency>(query, currency);
+        var sql = "SELECT * FROM create_currency_func(@CurrencyName, @AlphaCode, @IsActive)";
+        return await connection.QuerySingleAsync<Currency>(sql, currency);
     }
     // UPDATE-запрос для изменения ошибочной валюты
-    public async Task UpdateCurrencyAsync(Currency currency)
+    public async Task<Currency?> UpdateCurrencyAsync(Currency currency)
     {
         using var connection = _context.CreateConnection();
-        var query = @"UPDATE currencies 
-                  SET currency_name = @CurrencyName, 
-                      is_crypto = @IsCrypto, 
-                      digital_code = @DigitalCode, 
-                      alpha_code = @AlphaCode 
-                  WHERE currency_id = @CurrencyId";
-        await connection.ExecuteAsync(query, currency);
+        var sql = "SELECT * FROM update_currency_func(@CurrencyId, @CurrencyName, @AlphaCode, @IsActive)";
+        return await connection.QuerySingleOrDefaultAsync<Currency>(sql, currency);
     }
     // DELETE-запрос для удаления валюты
-    public async Task DeleteCurrencyAsync(int currencyId)
+    public async Task<int?> DeleteCurrencyAsync(int id)
     {
         using var connection = _context.CreateConnection();
-        var query = @"DELETE FROM currencies WHERE currency_id = @CurrencyId";
-        await connection.ExecuteAsync(query, new { CurrencyId = currencyId });
+        var sql = "SELECT delete_currency_func(@Id)";
+        return await connection.QuerySingleOrDefaultAsync<int>(sql, new { Id = id });
     }
 }
