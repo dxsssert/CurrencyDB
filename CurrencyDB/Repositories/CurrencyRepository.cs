@@ -19,14 +19,14 @@ public class CurrencyRepository
     public async Task<Currency> CreateCurrencyAsync(Currency currency)
     {
         using var connection = _context.CreateConnection();
-        var sql = "SELECT * FROM create_currency_func(@CurrencyName, @AlphaCode, @IsActive)";
+        var sql = "SELECT * FROM create_currency_func(@CurrencyName, @AlphaCode, @DigitalCode, @IsCrypto)";
         return await connection.QuerySingleAsync<Currency>(sql, currency);
     }
     // UPDATE-запрос для изменения ошибочной валюты
     public async Task<Currency?> UpdateCurrencyAsync(Currency currency)
     {
         using var connection = _context.CreateConnection();
-        var sql = "SELECT * FROM update_currency_func(@CurrencyId, @CurrencyName, @AlphaCode, @IsActive)";
+        var sql = "SELECT * FROM update_currency_func(@CurrencyId, @CurrencyName, @AlphaCode,  @DigitalCode, @IsCrypto)";
         return await connection.QuerySingleOrDefaultAsync<Currency>(sql, currency);
     }
     // DELETE-запрос для удаления валюты

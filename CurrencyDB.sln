@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyDB", "CurrencyDB\CurrencyDB.csproj", "{6BD1F01B-4B0A-45F4-AC61-F2D9F2D82F15}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyDB.Desktop", "CurrencyDB.Desktop\CurrencyDB.Desktop.csproj", "{F9039D97-E627-4217-94A2-D791911368AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{6BD1F01B-4B0A-45F4-AC61-F2D9F2D82F15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BD1F01B-4B0A-45F4-AC61-F2D9F2D82F15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BD1F01B-4B0A-45F4-AC61-F2D9F2D82F15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9039D97-E627-4217-94A2-D791911368AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9039D97-E627-4217-94A2-D791911368AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9039D97-E627-4217-94A2-D791911368AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9039D97-E627-4217-94A2-D791911368AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

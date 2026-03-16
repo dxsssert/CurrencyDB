@@ -7,4 +7,5 @@ public class Bank
     public string? BankCode { get; set; }
     public string? BankType { get; set; }
     public bool IsActive { get; set; }
+    
 }

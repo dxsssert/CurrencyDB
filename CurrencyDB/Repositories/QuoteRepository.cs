@@ -25,7 +25,7 @@ public class QuoteRepository
     public async Task<Quote?> UpdateQuoteAsync(Quote quote)
     {
         using var connection = _context.CreateConnection();
-        var sql = "SELECT * FROM update_quote_func(@QuoteId, @QuoteDate::date, @RateBuy, @RateSell)";
+        var sql = "SELECT * FROM update_quote_func(@QuoteId, @QuoteDate::date, @RateBuy, @RateSell, @CurrencyId, @BankId)";
         return await connection.QuerySingleOrDefaultAsync<Quote>(sql, quote);
     }
     // DELETE-запрос для удаления котировки из БД

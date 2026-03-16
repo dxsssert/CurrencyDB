@@ -14,7 +14,7 @@ public class BankRepository
     public async Task<IEnumerable<Bank>> GetAllBanksAsync()
     {
         using var connection = _context.CreateConnection();
-        return await connection.QueryAsync<Bank>("SELECT * FROM get_all_banks()");
+        return await connection.QueryAsync<Bank>("SELECT * FROM banks");
     }
     // POST-запрос для добавления нового банка 
     public async Task<Bank> CreateBankAsync(Bank bank)

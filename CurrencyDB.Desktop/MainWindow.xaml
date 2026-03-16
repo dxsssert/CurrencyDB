@@ -1,0 +1,283 @@
+﻿<Window x:Class="CurrencyDB.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="CurrencyDB Desktop Beta" Height="700" Width="1150"
+        WindowStartupLocation="CenterScreen" Background="#F4F7F9">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="HeaderBrush" Color="#2C3E50"/>
+        <SolidColorBrush x:Key="AccentBlue" Color="#2980B9"/>
+        <SolidColorBrush x:Key="AccentGreen" Color="#27AE60"/>
+        <SolidColorBrush x:Key="DangerRed" Color="#C0392B"/>
+        <SolidColorBrush x:Key="LightBg" Color="#F8F9FA"/>
+
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="15,7"/>
+            <Setter Property="Margin" Value="0,5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Margin" Value="0,2,0,12"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/> <RowDefinition Height="*"/>  <RowDefinition Height="30"/> </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="{StaticResource HeaderBrush}">
+            <Grid Margin="20,0">
+                <TextBlock Text="CurrencyDB Desktop" Foreground="White" 
+                           VerticalAlignment="Center" FontSize="18" FontWeight="Light"/>
+                <TextBlock Text="beta-version" Foreground="#7F8C8D" HorizontalAlignment="Right" 
+                           VerticalAlignment="Center" FontSize="10"/>
+            </Grid>
+        </Border>
+
+        <TabControl Grid.Row="1" Margin="10"  BorderThickness="0" Background="Transparent">
+            
+            <TabItem Header="Currencies">
+                <Grid Background="White">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="320"/>
+                    </Grid.ColumnDefinitions>
+
+                    <DataGrid x:Name="CurrenciesGrid" Margin="10" AutoGenerateColumns="False" 
+                              IsReadOnly="True" SelectionMode="Single" SelectionChanged="CurrenciesGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding CurrencyId}" Width="50"/>
+                            <DataGridTextColumn Header="Название" Binding="{Binding CurrencyName}" Width="*"/>
+                            <DataGridTextColumn Header="Букв. код" Binding="{Binding AlphaCode}" Width="85"/>
+                            <DataGridTextColumn Header="Цифр. код" Binding="{Binding DigitalCode}" Width="85"/>
+                            <DataGridCheckBoxColumn Header="Крипто" Binding="{Binding IsCrypto}" Width="70"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Border Grid.Column="1" Background="{StaticResource LightBg}" BorderBrush="#DFE6E9" BorderThickness="1,0,0,0">
+                        <StackPanel Margin="20">
+                            <TextBlock Text="УПРАВЛЕНИЕ ВАЛЮТОЙ" FontWeight="Bold" Margin="0,0,0,15"/>
+    
+                            <TextBlock Text="Название (напр. Доллар США):"/>
+                            <TextBox x:Name="TxtCurrencyName"/>
+
+                            <TextBlock Text="Буквенный код (USD):"/> <TextBox x:Name="TxtAlphaCode" MaxLength="3"/>
+
+                            <TextBlock Text="Цифровой код (840):"/>
+                            <TextBox x:Name="TxtDigitalCode" MaxLength="3" PreviewTextInput="OnlyNumbers_PreviewTextInput"/>
+
+                            <CheckBox x:Name="ChkIsCrypto" Content="Криптовалюта" Margin="0,5,0,20"/>
+
+                            <Button Content="СОХРАНИТЬ ВАЛЮТУ" Background="{StaticResource AccentBlue}" 
+                                    Foreground="White" Click="CreateCurrency_Click" BorderThickness="0"/>
+    
+                            <Button Content="ОБНОВИТЬ СПИСОК" Click="RefreshBtn_Click"/>
+
+                            <Button Content="ИЗМЕНИТЬ ВАЛЮТУ" Background="#F39C12" 
+                                    Foreground="White" Click="UpdateCurrency_Click" BorderThickness="0"/>
+    
+                            <Button Content="УДАЛИТЬ ВАЛЮТУ" Background="{StaticResource DangerRed}" 
+                                    Foreground="White" Click="DeleteCurrency_Click" BorderThickness="0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="  Banks  ">
+                <Grid Background="White">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="320"/>
+                    </Grid.ColumnDefinitions>
+
+                    <DataGrid x:Name="BanksGrid" Margin="10" AutoGenerateColumns="False" IsReadOnly="True" SelectionChanged="BanksGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding BankId}" Width="50"/>
+                            <DataGridTextColumn Header="Название банка" Binding="{Binding BankName}" Width="*"/>
+                            <DataGridTextColumn Header="МФО / Код" Binding="{Binding BankCode}" Width="120"/>
+                            <DataGridCheckBoxColumn Header="Активен" Binding="{Binding IsActive}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Border Grid.Column="1" Background="{StaticResource LightBg}" BorderBrush="#DFE6E9" BorderThickness="1,0,0,0">
+                        <StackPanel Margin="20">
+                            <TextBlock Text="УПРАВЛЕНИЕ БАНКОМ" FontWeight="Bold" Margin="0,0,0,15"/>
+                            <TextBlock Text="Полное наименование:"/>
+                            <TextBox x:Name="TxtBankName"/>
+                            <TextBlock Text="Код системы / МФО:"/>
+                            <TextBox x:Name="TxtBankCode"/>
+                            <TextBlock Text="Тип учреждения:"/>
+                            <ComboBox x:Name="CmbBankType" Margin="0,2,0,12" Height="28" SelectedIndex="1">
+                                <ComboBoxItem Content="Commercial"/>
+                                <ComboBoxItem Content="Central"/>
+                            </ComboBox>
+                            <CheckBox x:Name="ChkBankActive" Content="Активен" IsChecked="True" Margin="0,5,0,20"/>
+
+                            <Button Content="ДОБАВИТЬ" Background="{StaticResource AccentGreen}" 
+                                    Foreground="White" Click="CreateBank_Click" BorderThickness="0"/>
+                            <Button Content="ОБНОВИТЬ СПИСОК" Click="RefreshBtn_Click"/>
+                            <Button Content="ИЗМЕНИТЬ БАНК" Background="#F39C12" 
+                                    Foreground="White" Click="UpdateBank_Click" BorderThickness="0"/>
+
+                            <Button Content="УДАЛИТЬ БАНК" Background="{StaticResource DangerRed}" 
+                                    Foreground="White" Click="DeleteBank_Click" BorderThickness="0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="  Quotes  ">
+    <Grid Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="320"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+                <Button Content="Обновить всё" Click="RefreshBtn_Click" Width="120" Margin="0,0,10,0"/>
+            </StackPanel>
+
+            <DataGrid x:Name="QuotesGrid" Grid.Row="1" Margin="10" AutoGenerateColumns="False" 
+                      IsReadOnly="True" SelectionChanged="QuotesGrid_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding QuoteId}" Width="40"/>
+                    <DataGridTextColumn Header="Банк" Binding="{Binding BankName}" Width="*"/>
+                    <DataGridTextColumn Header="Валюта" Binding="{Binding CurrencyName}" Width="80"/>
+                    <DataGridTextColumn Header="Покупка" Binding="{Binding RateBuy}" Width="80"/>
+                    <DataGridTextColumn Header="Продажа" Binding="{Binding RateSell}" Width="80"/>
+                    <DataGridTextColumn Header="Дата" Binding="{Binding QuoteDate, StringFormat=\{0:dd.MM.yyyy\}}" Width="100"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <Border Grid.Column="1" Background="{StaticResource LightBg}" BorderBrush="#DFE6E9" BorderThickness="1,0,0,0">
+            <StackPanel Margin="20">
+                <TextBlock Text="УПРАВЛЕНИЕ КОТИРОВКОЙ" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                <TextBlock Text="Выберите банк:"/>
+                <ComboBox x:Name="CmbQuoteBank" DisplayMemberPath="BankName" SelectedValuePath="BankId" Margin="0,2,0,12"/>
+
+                <TextBlock Text="Выберите валюту:"/>
+                <ComboBox x:Name="CmbQuoteCurrency" DisplayMemberPath="CurrencyName" SelectedValuePath="CurrencyId" Margin="0,2,0,12"/>
+
+                <TextBlock Text="Курс покупки:"/>
+                <TextBox x:Name="TxtRateBuy"/>
+
+                <TextBlock Text="Курс продажи:"/>
+                <TextBox x:Name="TxtRateSell"/>
+
+                <Button Content="ДОБАВИТЬ КУРС" Background="{StaticResource AccentGreen}" Foreground="White" Click="CreateQuote_Click" BorderThickness="0"/>
+                <Button Content="ОБНОВИТЬ СПИСОК" Click="RefreshBtn_Click"/>
+                <Button Content="ИЗМЕНИТЬ КУРС" 
+                        Background="#F39C12" 
+                        Foreground="White" 
+                        Click="UpdateQuote_Click" 
+                        BorderThickness="0"/>
+                <Button Content="УДАЛИТЬ ВЫБРАННОЕ" Background="{StaticResource DangerRed}" Foreground="White" Click="DeleteQuote_Click" BorderThickness="0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</TabItem>
+            <TabItem Header="  Руководство  ">
+    <Grid Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>         <ColumnDefinition Width="320"/>       </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock x:Name="TxtReportTitle" 
+                       Text="Выберите отчет для просмотра" 
+                       FontSize="14" Margin="5,0,0,10" 
+                       Foreground="{StaticResource HeaderBrush}" 
+                       FontWeight="SemiBold"/>
+            
+            <DataGrid x:Name="ReportsGrid" 
+                      Grid.Row="1" 
+                      AutoGenerateColumns="False" 
+                      IsReadOnly="True" 
+                      Background="White"
+                      AlternatingRowBackground="#F9F9F9"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="#EFF2F3"
+                      BorderThickness="0">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Банк" Binding="{Binding bankname}" Width="*"/>
+                    <DataGridTextColumn Header="Дата" Binding="{Binding quotedate, StringFormat=\{0:dd.MM.yyyy\}}" Width="130"/>
+                    <DataGridTextColumn Header="Покупка" Binding="{Binding buyrate}" Width="90"/>
+                    <DataGridTextColumn Header="Продажа" Binding="{Binding sellrate}" Width="90">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Foreground" Value="#2980B9"/>
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <Border Grid.Column="1" Background="{StaticResource LightBg}" BorderBrush="#DFE6E9" BorderThickness="1,0,0,0">
+            <ScrollViewer> <StackPanel Margin="20">
+                    <TextBlock Text="АНАЛИТИЧЕСКИЕ ОТЧЕТЫ" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                    <TextBlock Text="Код валюты (напр. USD):"/>
+                    <TextBox x:Name="TxtReportCurrency" MaxLength="3" Text="USD"/>
+
+                    <TextBlock Text="Дата отчета:"/>
+                    <DatePicker x:Name="DateReport" Margin="0,2,0,12"/>
+
+                    <Separator Margin="0,10"/>
+
+                    <Button Content="ТЕКУЩИЙ КУРС" Click="GetCurrentRate_Click" Margin="0,5"/>
+                    <Button Content="ОТЧЕТ ПО СПРЕДАМ" Click="GetSpreadReport_Click" Margin="0,5"/>
+                    <Button Content="ДИНАМИКА КУРСА" Click="GetDynamics_Click" Margin="0,5"/>
+                    
+                    <Separator Margin="0,15"/>
+                    
+                    <TextBlock Text="РАСЧЕТ КРОСС-КУРСА" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                    
+                    <TextBlock Text="Базовая валюта:" FontSize="10" Foreground="#7F8C8D"/>
+                    <TextBox x:Name="TxtBaseCurr" Text="USD"/>
+                    
+                    <TextBlock Text="Целевая валюта:" FontSize="10" Foreground="#7F8C8D"/>
+                    <TextBox x:Name="TxtTargetCurr" Text="EUR" Margin="0,2,0,10"/>
+                    
+                    <Button Content="РАССЧИТАТЬ" Click="GetCrossRate_Click" 
+                            Background="{StaticResource AccentBlue}" Foreground="White" BorderThickness="0"/>
+                    
+                    <Border Background="#E8F4FD" CornerRadius="5" Margin="0,15,0,0" Padding="10">
+                        <StackPanel>
+                            <TextBlock Text="Результат:" HorizontalAlignment="Center" FontSize="10" Foreground="#2980B9"/>
+                            <TextBlock x:Name="TxtCrossRateResult" FontSize="20" FontWeight="Bold" 
+                                       Foreground="{StaticResource AccentGreen}" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</TabItem>
+        </TabControl>
+
+        <StatusBar Grid.Row="2" Background="#DFE6E9">
+            <TextBlock x:Name="StatusText" Text="Система готова к работе" Margin="10,0" FontSize="11" VerticalAlignment="Center"/>
+        </StatusBar>
+    </Grid>
+</Window>

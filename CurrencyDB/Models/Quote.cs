@@ -9,4 +9,6 @@ public class Quote
     public DateTime CreatedAt { get; set; }
     public int CurrencyId { get; set; }
     public int BankId { get; set; }
+    public string? BankName { get; set; }
+    public string? CurrencyName { get; set; }
 }
