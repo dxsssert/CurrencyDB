@@ -4,8 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="CurrencyDB Desktop Beta" Height="700" Width="1150"
+        Title="Система управления котировками валют бета-версия" Height="700" Width="1150"
         WindowStartupLocation="CenterScreen" Background="#F4F7F9">
+    
 
     <Window.Resources>
         <SolidColorBrush x:Key="HeaderBrush" Color="#2C3E50"/>
@@ -29,21 +30,23 @@
     </Window.Resources>
 
     <Grid>
+        <Grid Background="Transparent" MouseDown="Global_MouseDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/> <RowDefinition Height="*"/>  <RowDefinition Height="30"/> </Grid.RowDefinitions>
+        
 
         <Border Grid.Row="0" Background="{StaticResource HeaderBrush}">
             <Grid Margin="20,0">
-                <TextBlock Text="CurrencyDB Desktop" Foreground="White" 
+                <TextBlock Text="Система управления котировками валют" Foreground="White" 
                            VerticalAlignment="Center" FontSize="18" FontWeight="Light"/>
-                <TextBlock Text="beta-version" Foreground="#7F8C8D" HorizontalAlignment="Right" 
+                <TextBlock Text="бета-версия" Foreground="#7F8C8D" HorizontalAlignment="Right" 
                            VerticalAlignment="Center" FontSize="10"/>
             </Grid>
         </Border>
 
         <TabControl Grid.Row="1" Margin="10"  BorderThickness="0" Background="Transparent">
             
-            <TabItem Header="Currencies">
+            <TabItem Header="Валюты">
                 <Grid Background="White">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -53,7 +56,7 @@
                     <DataGrid x:Name="CurrenciesGrid" Margin="10" AutoGenerateColumns="False" 
                               IsReadOnly="True" SelectionMode="Single" SelectionChanged="CurrenciesGrid_SelectionChanged">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding CurrencyId}" Width="50"/>
+                            
                             <DataGridTextColumn Header="Название" Binding="{Binding CurrencyName}" Width="*"/>
                             <DataGridTextColumn Header="Букв. код" Binding="{Binding AlphaCode}" Width="85"/>
                             <DataGridTextColumn Header="Цифр. код" Binding="{Binding DigitalCode}" Width="85"/>
@@ -75,22 +78,22 @@
 
                             <CheckBox x:Name="ChkIsCrypto" Content="Криптовалюта" Margin="0,5,0,20"/>
 
-                            <Button Content="СОХРАНИТЬ ВАЛЮТУ" Background="{StaticResource AccentBlue}" 
+                            <Button x:Name="BtnCreateCurrency" Content="ДОБАВИТЬ ВАЛЮТУ" Background="{StaticResource AccentBlue}" 
                                     Foreground="White" Click="CreateCurrency_Click" BorderThickness="0"/>
     
                             <Button Content="ОБНОВИТЬ СПИСОК" Click="RefreshBtn_Click"/>
 
-                            <Button Content="ИЗМЕНИТЬ ВАЛЮТУ" Background="#F39C12" 
+                            <Button x:Name="BtnUpdateCurrency" Content="ИЗМЕНИТЬ ВАЛЮТУ" Background="#F39C12" 
                                     Foreground="White" Click="UpdateCurrency_Click" BorderThickness="0"/>
     
-                            <Button Content="УДАЛИТЬ ВАЛЮТУ" Background="{StaticResource DangerRed}" 
+                            <Button x:Name ="BtnDeleteCurrency" Content="УДАЛИТЬ ВАЛЮТУ" Background="{StaticResource DangerRed}" 
                                     Foreground="White" Click="DeleteCurrency_Click" BorderThickness="0"/>
                         </StackPanel>
                     </Border>
                 </Grid>
             </TabItem>
 
-            <TabItem Header="  Banks  ">
+            <TabItem Header="  Банки  ">
                 <Grid Background="White">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -99,9 +102,9 @@
 
                     <DataGrid x:Name="BanksGrid" Margin="10" AutoGenerateColumns="False" IsReadOnly="True" SelectionChanged="BanksGrid_SelectionChanged">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding BankId}" Width="50"/>
                             <DataGridTextColumn Header="Название банка" Binding="{Binding BankName}" Width="*"/>
                             <DataGridTextColumn Header="МФО / Код" Binding="{Binding BankCode}" Width="120"/>
+                            <DataGridTextColumn Header="Тип" Binding="{Binding BankType}" Width="100"/>
                             <DataGridCheckBoxColumn Header="Активен" Binding="{Binding IsActive}" Width="80"/>
                         </DataGrid.Columns>
                     </DataGrid>
@@ -120,20 +123,20 @@
                             </ComboBox>
                             <CheckBox x:Name="ChkBankActive" Content="Активен" IsChecked="True" Margin="0,5,0,20"/>
 
-                            <Button Content="ДОБАВИТЬ" Background="{StaticResource AccentGreen}" 
+                            <Button x:Name="BtnCreateBank" Content="ДОБАВИТЬ" Background="{StaticResource AccentGreen}" 
                                     Foreground="White" Click="CreateBank_Click" BorderThickness="0"/>
                             <Button Content="ОБНОВИТЬ СПИСОК" Click="RefreshBtn_Click"/>
-                            <Button Content="ИЗМЕНИТЬ БАНК" Background="#F39C12" 
+                            <Button x:Name="BtnUpdateBank" Content="ИЗМЕНИТЬ БАНК" Background="#F39C12" 
                                     Foreground="White" Click="UpdateBank_Click" BorderThickness="0"/>
 
-                            <Button Content="УДАЛИТЬ БАНК" Background="{StaticResource DangerRed}" 
+                            <Button x:Name="BtnDeleteBank" Content="УДАЛИТЬ БАНК" Background="{StaticResource DangerRed}" 
                                     Foreground="White" Click="DeleteBank_Click" BorderThickness="0"/>
                         </StackPanel>
                     </Border>
                 </Grid>
             </TabItem>
 
-            <TabItem Header="  Quotes  ">
+            <TabItem Header="  Котировки  ">
     <Grid Background="White">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -153,7 +156,7 @@
             <DataGrid x:Name="QuotesGrid" Grid.Row="1" Margin="10" AutoGenerateColumns="False" 
                       IsReadOnly="True" SelectionChanged="QuotesGrid_SelectionChanged">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" Binding="{Binding QuoteId}" Width="40"/>
+                   
                     <DataGridTextColumn Header="Банк" Binding="{Binding BankName}" Width="*"/>
                     <DataGridTextColumn Header="Валюта" Binding="{Binding CurrencyName}" Width="80"/>
                     <DataGridTextColumn Header="Покупка" Binding="{Binding RateBuy}" Width="80"/>
@@ -179,14 +182,10 @@
                 <TextBlock Text="Курс продажи:"/>
                 <TextBox x:Name="TxtRateSell"/>
 
-                <Button Content="ДОБАВИТЬ КУРС" Background="{StaticResource AccentGreen}" Foreground="White" Click="CreateQuote_Click" BorderThickness="0"/>
-                <Button Content="ОБНОВИТЬ СПИСОК" Click="RefreshBtn_Click"/>
-                <Button Content="ИЗМЕНИТЬ КУРС" 
-                        Background="#F39C12" 
-                        Foreground="White" 
-                        Click="UpdateQuote_Click" 
-                        BorderThickness="0"/>
-                <Button Content="УДАЛИТЬ ВЫБРАННОЕ" Background="{StaticResource DangerRed}" Foreground="White" Click="DeleteQuote_Click" BorderThickness="0"/>
+                <Button x:Name="BtnCreateQuote" Content="ДОБАВИТЬ КУРС" Background="{StaticResource AccentGreen}" Foreground="White" Click="CreateQuote_Click" BorderThickness="0"/>
+                <Button  Content="ОБНОВИТЬ СПИСОК" Click="RefreshBtn_Click"/>
+                <Button x:Name="BtnUpdateQuote" Content="ИЗМЕНИТЬ КУРС" Background="#F39C12" Foreground="White" Click="UpdateQuote_Click" BorderThickness="0"/>
+                <Button x:Name="BtnDeleteQuote" Content="УДАЛИТЬ ВЫБРАННОЕ" Background="{StaticResource DangerRed}" Foreground="White" Click="DeleteQuote_Click" BorderThickness="0"/>
             </StackPanel>
         </Border>
     </Grid>
@@ -217,10 +216,10 @@
                       HorizontalGridLinesBrush="#EFF2F3"
                       BorderThickness="0">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Банк" Binding="{Binding bankname}" Width="*"/>
-                    <DataGridTextColumn Header="Дата" Binding="{Binding quotedate, StringFormat=\{0:dd.MM.yyyy\}}" Width="130"/>
-                    <DataGridTextColumn Header="Покупка" Binding="{Binding buyrate}" Width="90"/>
-                    <DataGridTextColumn Header="Продажа" Binding="{Binding sellrate}" Width="90">
+                    <DataGridTextColumn Header="Банк" Binding="{Binding bank_name}" Width="*"/>
+                    <DataGridTextColumn Header="Дата" Binding="{Binding quote_date, StringFormat=\{0:dd.MM.yyyy\}}" Width="130"/>
+                    <DataGridTextColumn Header="Покупка" Binding="{Binding buy_rate}" Width="90"/>
+                    <DataGridTextColumn Header="Продажа" Binding="{Binding sell_rate}" Width="90">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="FontWeight" Value="SemiBold"/>
@@ -279,5 +278,6 @@
         <StatusBar Grid.Row="2" Background="#DFE6E9">
             <TextBlock x:Name="StatusText" Text="Система готова к работе" Margin="10,0" FontSize="11" VerticalAlignment="Center"/>
         </StatusBar>
+        </Grid>
     </Grid>
 </Window>

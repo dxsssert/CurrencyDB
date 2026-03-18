@@ -58,6 +58,7 @@ public partial class MainWindow : Window
             StatusText.Text = "Ошибка при обновлении.";
         }
     }
+    
 
     private void OnlyNumbers_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
@@ -65,6 +66,39 @@ public partial class MainWindow : Window
     }
 
     private async void RefreshBtn_Click(object sender, RoutedEventArgs e) => await RefreshAllData();
+    private void CurrenciesGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        bool isSelected = CurrenciesGrid.SelectedItem is Currency;
+
+        if (isSelected && CurrenciesGrid.SelectedItem is Currency selected)
+        {
+            
+            TxtCurrencyName.Text = selected.CurrencyName!;
+            TxtAlphaCode.Text = selected.AlphaCode!;
+            TxtDigitalCode.Text = selected.DigitalCode.ToString();
+            ChkIsCrypto.IsChecked = selected.IsCrypto;
+        
+            StatusText.Text = $"Редактирование: {selected.CurrencyName}";
+        }
+        else
+        {
+            TxtCurrencyName.Clear();
+            TxtAlphaCode.Clear();
+            TxtDigitalCode.Clear();
+            ChkIsCrypto.IsChecked = false;
+        
+            StatusText.Text = "Режим добавления новой валюты";
+        }
+        BtnCreateCurrency.IsEnabled = !isSelected; 
+        
+    }
+    private void Global_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        
+        CurrenciesGrid.SelectedItem = null;
+        BanksGrid.SelectedItem = null;
+        QuotesGrid.SelectedItem = null;
+    }
 
     private async void CreateCurrency_Click(object sender, RoutedEventArgs e)
     {
@@ -89,18 +123,7 @@ public partial class MainWindow : Window
         await RefreshAllData();
     }
 
-    private void CurrenciesGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-
-        if (CurrenciesGrid.SelectedItem is Currency selected)
-        {
-            TxtCurrencyName.Text = selected.CurrencyName!;
-            TxtAlphaCode.Text = selected.AlphaCode!;
-            TxtDigitalCode.Text = selected.DigitalCode.ToString();
-            ChkIsCrypto.IsChecked = selected.IsCrypto;
-            StatusText.Text = $"Выбрана валюта: {selected.CurrencyName} (ID: {selected.CurrencyId})";
-        }
-    }
+    
 
     private async void UpdateCurrency_Click(object sender, RoutedEventArgs e)
     {
@@ -142,18 +165,23 @@ public partial class MainWindow : Window
                 await RefreshAllData();
                 StatusText.Text = "Запись удалена";
             }
+            
         }
+        else
+            MessageBox.Show("Сначала выберите валюту в таблице!");
+        
     }
 
     private void BanksGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (BanksGrid.SelectedItem == null) return;
-        if (BanksGrid.SelectedItem is Bank selected)
-        {
-            TxtBankName.Text = selected.BankName!;
-            TxtBankCode.Text = selected.BankCode!;
-            ChkBankActive.IsChecked = selected.IsActive;
+        var selected = BanksGrid.SelectedItem as Bank;
+        bool isSelected = selected != null;
 
+        if (isSelected)
+        {
+            TxtBankName.Text = selected.BankName ?? "";
+            TxtBankCode.Text = selected.BankCode ?? "";
+            ChkBankActive.IsChecked = selected.IsActive;
 
             foreach (ComboBoxItem item in CmbBankType.Items)
             {
@@ -163,9 +191,17 @@ public partial class MainWindow : Window
                     break;
                 }
             }
-
-            StatusText.Text = $"Выбран банк: {selected.BankName}";
+            StatusText.Text = $"Редактирование банка: {selected.BankName}";
         }
+        else
+        {
+            TxtBankName.Clear();
+            TxtBankCode.Clear();
+            CmbBankType.SelectedIndex = 1;
+            ChkBankActive.IsChecked = true;
+            StatusText.Text = "Режим добавления нового банка";
+        }
+        BtnCreateBank.IsEnabled = !isSelected;
     }
 
     private async void CreateBank_Click(object sender, RoutedEventArgs e)
@@ -232,27 +268,38 @@ public partial class MainWindow : Window
             if (result == MessageBoxResult.Yes)
             {
                 await _bankRepo.DeleteBankAsync(selected.BankId);
+                BanksGrid.SelectedItem = null; 
                 await RefreshAllData();
             }
+        }
+        else
+        {
+            MessageBox.Show("Сначала выберите банк в таблице!");
         }
     }
 
     private void QuotesGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (QuotesGrid.SelectedItem == null) return;
+        var selected = QuotesGrid.SelectedItem as Quote;
+        bool isSelected = selected != null;
 
-        if (QuotesGrid.SelectedItem is Quote selected)
+        if (isSelected)
         {
-
             CmbQuoteBank.SelectedValue = selected.BankId;
             CmbQuoteCurrency.SelectedValue = selected.CurrencyId;
-
-
             TxtRateBuy.Text = selected.RateBuy.ToString();
             TxtRateSell.Text = selected.RateSell.ToString();
-
-            StatusText.Text = $"Выбрана котировка ID: {selected.QuoteId}";
+            StatusText.Text = $"Редактирование котировки ID: {selected.QuoteId}";
         }
+        else
+        {
+            CmbQuoteBank.SelectedIndex = -1;
+            CmbQuoteCurrency.SelectedIndex = -1;
+            TxtRateBuy.Clear();
+            TxtRateSell.Clear();
+            StatusText.Text = "Режим добавления новой котировки";
+        }
+        BtnCreateQuote.IsEnabled = !isSelected;
     }
 
     private async void CreateQuote_Click(object sender, RoutedEventArgs e)
@@ -333,18 +380,35 @@ public partial class MainWindow : Window
     {
         if (QuotesGrid.SelectedItem is Quote selectedQuote)
         {
-            await _quoteRepo.DeleteQuoteAsync(selectedQuote.QuoteId);
-            await RefreshAllData();
+            var result = MessageBox.Show("Удалить выбранную котировку?", "Внимание",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (result == MessageBoxResult.Yes)
+            {
+                await _quoteRepo.DeleteQuoteAsync(selectedQuote.QuoteId);
+                QuotesGrid.SelectedItem = null; 
+                await RefreshAllData();
+            }
+        }
+        else
+        {
+            MessageBox.Show("Сначала выберите котировку в таблице!");
         }
     }
     
     private async void GetCurrentRate_Click(object sender, RoutedEventArgs e)
     {
-        var code = TxtReportCurrency.Text.ToUpper();
-        var data = await _reportRepo.GetCurrentRateAsync(code);
+        try 
+        {
+            var code = TxtReportCurrency.Text.ToUpper();
+            var data = await _reportRepo.GetCurrentRateAsync(code);
        
-        ReportsGrid.ItemsSource = data.ToList();
-        TxtReportTitle.Text = $"Актуальные курсы {code} на сегодня";
+            ReportsGrid.ItemsSource = data.ToList();
+            TxtReportTitle.Text = $"Актуальные курсы {code} на сегодня";
+        }
+        catch (Exception ex) 
+        {
+            MessageBox.Show($"Ошибка в отчете: {ex.Message}\n{ex.InnerException?.Message}");
+        }
     }
 
 
@@ -352,8 +416,8 @@ public partial class MainWindow : Window
     {
         var code = TxtReportCurrency.Text.ToUpper();
         var date = DateReport.SelectedDate ?? DateTime.Today;
-        var data = await _reportRepo.GetSpreadReportAsync(code, date);
-        
+        var data = (await _reportRepo.GetSpreadReportAsync(code, date)).ToList();
+        StatusText.Text = $"Найдено записей по спредам: {data.Count}";
         ReportsGrid.ItemsSource = data.ToList();
         TxtReportTitle.Text = $"Анализ спредов {code} за {date:dd.MM.yyyy}";
     }
@@ -381,4 +445,5 @@ public partial class MainWindow : Window
         
         TxtCrossRateResult.Text = result.HasValue ? result.Value.ToString("N4") : "Н/Д";
     }
+    
 }
